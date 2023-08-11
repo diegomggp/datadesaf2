@@ -33,9 +33,9 @@ def metrics():
         else:
             json_result = jsonify({"message": "El contenido de la petición no es un JSON"}), 400
     except Exception as ex:
-        json_result = jsonify({"message": str(ex)}), 400
+        json_result = jsonify({"message": str(ex)}), 500
     finally:
-        return json_result
+        return json_result, 200
     
 
 
