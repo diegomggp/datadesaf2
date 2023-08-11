@@ -1,6 +1,7 @@
 [
     {
         "item": 1,
+	"played_at":"2023-08-10T15:47:50.611Z",
         "metrics": {
             "danceability": 0.493,
             "energy": 0.969,
@@ -24,6 +25,7 @@
     },
     {
         "item": 2,
+	"played_at":"2023-08-10T15:48:50.611Z",
         "metrics": {
             "danceability": 0.42,
             "energy": 0.888,
@@ -47,6 +49,7 @@
     },
     {
         "item": 3,
+	"played_at":"2023-08-10T15:49:50.611Z",
         "metrics": {
             "danceability": 0.443,
             "energy": 0.822,
@@ -70,6 +73,7 @@
     },
     {
         "item": 4,
+	"played_at":"2023-08-10T15:50:50.611Z",
         "metrics": {
             "danceability": 0.145,
             "energy": 0.416,
@@ -93,6 +97,7 @@
     },
     {
         "item": 5,
+	"played_at":"2023-08-10T15:51:50.611Z",
         "metrics": {
             "danceability": 0.43,
             "energy": 0.417,
