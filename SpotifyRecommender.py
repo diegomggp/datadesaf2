@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from MetricAnalyzer import MetricAnalyzer as metric_analyzer
 from SimilarityAnalyzer import SimilarityAnalyzer as similarity_analyzer
+from ArtistAnalyzer import ArtistAnalyzer as artist_analyzer
 
 app = Flask(__name__)
 
@@ -57,6 +58,32 @@ def fx__api_similarity():
             data = request.get_json()      
             analyzer = similarity_analyzer('similarity_analyzer')
             json_result = analyzer.fx__get_next_song_metrics(data)
+        else:
+            json_result = jsonify({"message": "El contenido de la petición no es un JSON"}), 400
+    except Exception as ex:
+        json_result = jsonify({"message": str(ex)}), 500
+    finally:
+        return json_result, 200
+
+
+
+@app.route('/api/v1/favourite_artists', methods=['POST'])
+def fx__api_favourite_artists():
+    '''
+    API call to select the top 20 artists from users playlist
+
+    Args:
+        json (JSON): JSON data with the songs in a playlist
+
+    Returns:
+        JSON: JSON with the information about top 20 artists
+    '''
+    try:
+        
+        if request.is_json:
+            data = request.get_json()      
+            analyzer = artist_analyzer('artist_analyzer')
+            json_result = analyzer.fx__get_favourite_artists(data)
         else:
             json_result = jsonify({"message": "El contenido de la petición no es un JSON"}), 400
     except Exception as ex:
