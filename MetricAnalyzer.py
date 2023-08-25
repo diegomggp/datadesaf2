@@ -1,6 +1,7 @@
 from prophet import Prophet
 import pandas as pd
 import datetime as dt
+from MetricBuilder import MetricBuilder as mb
 
 class MetricAnalyzer:
     '''
@@ -36,7 +37,8 @@ class MetricAnalyzer:
         '''
 
         try:
-            df = self.fx__read_metrics(json)
+            metric_builder = mb()
+            df = metric_builder.fx__read_metrics(json)
             if not df.empty:
                 predictions = self.fx__predict(df)
                 predictions = self.fx__handle_predictions(predictions)            
@@ -45,73 +47,6 @@ class MetricAnalyzer:
             return {'Error':str(ex)}
         finally:
             return predictions
-    
-
-    
-    def fx__read_metrics(self, json):
-        '''
-        It read the data from JSON and it parses into a Pandas DataFrame
-
-        Args:
-            json (JSON): JSON data with the songs metrics
-
-        Returns:
-            DataFrame: A Pandas DataFrame of the parsed JSON
-        '''
-
-        try:
-            # create a new DataFrame with the fields we expected
-            df = pd.DataFrame(
-                columns=['song', 
-                        'ts', 
-                        'danceability',
-                        'energy',
-                        'key',
-                        'loudness',
-                        'mode',
-                        'speechiness',
-                        'acousticness',
-                        'instrumentalness',
-                        'liveness',
-                        'valence',
-                        'tempo',
-                        'duration_ms',
-                        'time_signature'])
-            
-            # iterate over json items for parsing data
-            for item in json:        
-                # build the row for dataframe
-                row = {
-                    'song':item['item'], 
-                    'ts':dt.datetime.strptime(item['played_at'], '%Y-%m-%dT%H:%M:%S.%fZ'),
-                    'danceability':item['metrics']['danceability'],
-                    'energy':item['metrics']['energy'],
-                    'key':item['metrics']['key'],
-                    'loudness':item['metrics']['loudness'],
-                    'mode':item['metrics']['mode'],
-                    'speechiness':item['metrics']['speechiness'],
-                    'acousticness':item['metrics']['acousticness'],
-                    'instrumentalness':item['metrics']['instrumentalness'],
-                    'liveness':item['metrics']['liveness'],
-                    'valence':item['metrics']['valence'],
-                    'tempo':item['metrics']['tempo'],
-                    'duration_ms':item['metrics']['duration_ms'],
-                    'time_signature':item['metrics']['time_signature']
-                    }       
-                
-                # insert into dataframe
-                df.loc[len(df)] = row
-            
-            # set timestamp properly at the end
-            df['ts'] = pd.to_datetime(df['ts'], format='%Y-%m-%d &H:%M:%S')            
-            df= df.sort_values('ts', ascending=False)
-            
-        except Exception as ex:
-            print(ex)                     
-            df= pd.DataFrame()
-        finally:
-                return df
-        
     
     def fx__predict(self, df):
         '''
