@@ -1,10 +1,10 @@
 import os
 import json
 from flask import Flask, request, jsonify
-from MetricAnalyzer import MetricAnalyzer as metric_analyzer
-from SimilarityAnalyzer import SimilarityAnalyzer as similarity_analyzer
-from ArtistAnalyzer import ArtistAnalyzer as artist_analyzer
-from NeuralNetwork import NeuralNetwork as neural_network
+from Metrics.MetricAnalyzer import MetricAnalyzer as metric_analyzer
+from Metrics.SimilarityAnalyzer import SimilarityAnalyzer as similarity_analyzer
+from Artist.ArtistAnalyzer import ArtistAnalyzer as artist_analyzer
+from NeuralNetwork.NeuralNetwork import NeuralNetwork as neural_network
 
 # New Flask Instance
 app = Flask(__name__, static_folder='static')

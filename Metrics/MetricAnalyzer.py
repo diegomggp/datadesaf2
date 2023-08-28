@@ -1,7 +1,7 @@
 from prophet import Prophet
 import pandas as pd
 import datetime as dt
-from MetricBuilder import MetricBuilder as mb
+from Metrics.MetricBuilder import MetricBuilder as mb
 
 class MetricAnalyzer:
     '''

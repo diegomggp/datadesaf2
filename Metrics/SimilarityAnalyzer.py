@@ -1,6 +1,6 @@
 import pandas as pd
 import datetime as dt
-from MetricBuilder import MetricBuilder as mb
+from Metrics.MetricBuilder import MetricBuilder as mb
 from sklearn.neighbors import NearestNeighbors
 from sklearn.preprocessing import StandardScaler
 import json

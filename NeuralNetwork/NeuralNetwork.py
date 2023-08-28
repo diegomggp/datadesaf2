@@ -15,8 +15,8 @@ from keras.layers import Dense
 from keras.wrappers.scikit_learn import KerasClassifier
 from keras.utils import np_utils
 
-from TrainDataSetPreparer import TrainDataSetPreparer as train_dataset_preparer
-from TrainDataSetBuilder import TrainDataSetBuilder as train_dataset_builder
+from NeuralNetwork.TrainDataSetPreparer import TrainDataSetPreparer as train_dataset_preparer
+from NeuralNetwork.TrainDataSetBuilder import TrainDataSetBuilder as train_dataset_builder
 
 class NeuralNetwork:
 
@@ -76,10 +76,10 @@ class NeuralNetwork:
             estimator.fit(X_train, y_train)
             accuracy = estimator.score(X_test, y_test) * 100
 
-            keras.models.save_model(estimator.model,'./neural_model.keras', overwrite=True)
+            keras.models.save_model(estimator.model,'./static/neural_model.keras', overwrite=True)
             # pickle.dump(model, open('neural_model.pkl','wb'))
 
-            if os.path.exists('./neural_model.keras') == True:
+            if os.path.exists('./static/neural_model.keras') == True:
                 message = 'Model saved => '
             else:
                 message = '/!\ Model NOT saved /!\ => '
@@ -141,10 +141,10 @@ class NeuralNetwork:
         isOk = True
         try:
             categories = self.m_c_train_dataset_preparer.m_dic_categories
-            with open('./neural_model_labels.json', "w") as json_file:
+            with open('./static/neural_model_labels.json', "w") as json_file:
                 json.dump(categories, json_file)
 
-            isOk = os.path.exists('./neural_model_labels.json')
+            isOk = os.path.exists('./static/neural_model_labels.json')
         except Exception as ex:
             print(ex)
             isOk=False
@@ -157,8 +157,8 @@ class NeuralNetwork:
     def __fx__get_categories(self):
         categories ={}
         try:
-            if os.path.exists('./neural_model_labels.json'):
-                with open('./neural_model_labels.json', "r") as json_file:
+            if os.path.exists('./static/neural_model_labels.json'):
+                with open('./static/neural_model_labels.json', "r") as json_file:
                     categories = json.load(json_file)
                 
         except Exception as ex:
@@ -183,10 +183,10 @@ class NeuralNetwork:
         try:
 
             # create the model if not created
-            if os.path.exists('./neural_model.keras') == True:
+            if os.path.exists('./static/neural_model.keras') == True:
                 # get the model
                 # model_advertising= pickle.load(open('neural_model.pkl', 'rb'))
-                model = keras.models.load_model('./neural_model.keras')
+                model = keras.models.load_model('./static/neural_model.keras')
                 
                 categories = self.__fx__get_categories()
 

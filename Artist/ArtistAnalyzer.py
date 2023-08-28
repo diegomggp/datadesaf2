@@ -1,6 +1,6 @@
 import json
 import pandas as pd
-from ArtistBuilder import ArtistBuilder as artist_builder
+from Artist.ArtistBuilder import ArtistBuilder as artist_builder
 
 class ArtistAnalyzer:
 
