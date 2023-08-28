@@ -1,9 +1,18 @@
+import os
+import json
 from flask import Flask, request, jsonify
-from MetricAnalyzer import MetricAnalyzer as metric_analyzer
-from SimilarityAnalyzer import SimilarityAnalyzer as similarity_analyzer
-from ArtistAnalyzer import ArtistAnalyzer as artist_analyzer
+from Metrics.MetricAnalyzer import MetricAnalyzer as metric_analyzer
+from Metrics.SimilarityAnalyzer import SimilarityAnalyzer as similarity_analyzer
+from Artist.ArtistAnalyzer import ArtistAnalyzer as artist_analyzer
+from NeuralNetwork.NeuralNetwork import NeuralNetwork as neural_network
 
-app = Flask(__name__)
+# New Flask Instance
+app = Flask(__name__, static_folder='static')
+
+# Define a folder for uploading files
+UPLOAD_FOLDER = 'static'
+app.config['UPLOAD_FOLDER'] =  UPLOAD_FOLDER
+
 
 # Default entrypoint
 @app.route('/', methods=['GET'])
@@ -92,5 +101,87 @@ def fx__api_favourite_artists():
         return json_result, 200
 
 
+
+
+# It predicts the sales based in 3 parameters. If model is not created yet it will.
+@app.route('/api/v1/predict_mood', methods=['POST'])
+def predict():
+    '''
+    API call to retrain the neural network model with new data
+    Args:
+        json (JSON): JSON data with the songs metrics and mood labelled
+    Returns:
+        JSON: Model accuracy result
+    '''
+    try:
+        
+        if request.is_json:
+            data = request.get_json()      
+            nn = neural_network()
+            json_result = nn.fx__predict(data)
+        else:
+            json_result = jsonify({"message": "El contenido de la petición no es un JSON"}), 400
+
+    except Exception as ex:
+        json_result = jsonify({"message": str(ex)}), 500
+    finally:
+        return json_result, 200
+    
+
+    
+
+
+
+@app.route('/api/v1/retrain_mood', methods=['POST'])
+def fx__api__retrain():    
+    '''
+    API call to retrain the neural network model with new data
+    Args:
+        json (JSON): JSON data with the songs metrics and mood labelled
+    Returns:
+        JSON: Model accuracy result
+    '''
+    try:
+        
+        if request.is_json:
+            data = request.get_json()      
+            nn = neural_network()
+            json_result = nn.fx__train(data)
+        else:
+            json_result = jsonify({"message": "El contenido de la petición no es un JSON"}), 400
+
+    except Exception as ex:
+        json_result = jsonify({"message": str(ex)}), 500
+    finally:
+        return json_result, 200
+    
+
+@app.route('/api/v1/default_train_mood', methods=['GET'])
+def fx__api__default_train():
+    '''
+    API call to retrain the neural network model with the default data
+    Args:
+        json (JSON): JSON data with the songs metrics and mood labelled
+    Returns:
+        JSON: Model accuracy result
+    '''
+    
+    try:
+        
+        # default trainning JSON path
+        filename = os.path.join(app.config['UPLOAD_FOLDER'], 'playlist_metrics.json')
+        # load JSON file
+        data = json.load(open(filename))
+        # train neural network
+        nn = neural_network()
+        json_result = nn.fx__train(data)
+
+    except Exception as ex:
+        json_result = jsonify({"message": str(ex)}), 500
+    finally:        
+        return json_result, 200
+    
+
+
 if __name__ == '__main__':
-    app.run(debug = True, port=5000)
+    app.run(debug = False, port=5000)
