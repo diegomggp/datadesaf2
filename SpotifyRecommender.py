@@ -5,8 +5,6 @@ from Metrics.MetricAnalyzer import MetricAnalyzer as metric_analyzer
 from Metrics.SimilarityAnalyzer import SimilarityAnalyzer as similarity_analyzer
 from Artist.ArtistAnalyzer import ArtistAnalyzer as artist_analyzer
 from NeuralNetwork.NeuralNetwork import NeuralNetwork as neural_network
-from NeuralNetwork.NeuralNetworkTest import NeuralNetworkTest as neural_network_test
-
 
 from keras.models import Sequential
 from keras.layers import Dense
