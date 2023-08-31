@@ -4,16 +4,17 @@ from flask import jsonify
 import pandas as pd
 import numpy as np
 from collections import Counter
+from sklearn.datasets import make_classification
 
 # cross validation libraries
 from sklearn.model_selection import train_test_split, cross_val_score, KFold, GridSearchCV
 
 #Libraries to create the Multi-class Neural Network
-import keras
+import tensorflow as tf
 from keras.models import Sequential
 from keras.layers import Dense
-from keras.wrappers.scikit_learn import KerasClassifier
-from keras.utils import np_utils
+from scikeras.wrappers import KerasClassifier
+from tensorflow.python.keras.utils import np_utils
 
 from NeuralNetwork.TrainDataSetPreparer import TrainDataSetPreparer as train_dataset_preparer
 from NeuralNetwork.TrainDataSetBuilder import TrainDataSetBuilder as train_dataset_builder
@@ -25,8 +26,9 @@ class NeuralNetwork:
         self.columns_in_df = 0
         self.m_c_train_dataset_preparer = train_dataset_preparer()
         self.m_c_train_dataset_builder = train_dataset_builder()
-        
+        self.m_c_model = None
 
+    
 
     def fx__train(self, json):
         '''
@@ -39,7 +41,6 @@ class NeuralNetwork:
         '''
         isOk =True
         try:
-
             # parse the json into dataframe
             df = self.__fx__prepare_data(json)       
             df = self.m_c_train_dataset_preparer.fx__prepare_target_encoding(df)
@@ -50,6 +51,7 @@ class NeuralNetwork:
 
             # predictors and variables
             y = df['tag']
+            y= y.astype(np.int32)
             X = df.drop(columns='tag').apply(pd.to_numeric)
 
             X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, random_state = 0)
@@ -58,12 +60,12 @@ class NeuralNetwork:
             self.columns_in_df = len(X.columns)
             
             # Configure the estimator with 300 epochs and 200 batchs. the build_fn takes the function defined above.
-            estimator = KerasClassifier(
-                build_fn=self.__fx__create_base_model,
-                input_dim =self.columns_in_df,
-                units = self.number_of_moods,
-                epochs=300,
-                batch_size=200)
+            # estimator = KerasClassifier(
+            #     model=self.__fx__create_base_model,
+            #     input_dim =self.columns_in_df,
+            #     units = self.number_of_moods,
+            # #     epochs=300,
+            #     batch_size=200)
             
             # Debugging? -->
             # #Evaluate the model using KFold cross validation
@@ -73,10 +75,11 @@ class NeuralNetwork:
             # <-- Debugging?
 
             # materialize the model            
-            estimator.fit(X_train, y_train)
-            accuracy = estimator.score(X_test, y_test) * 100
+            model = self.__fx__create_base_model(self.columns_in_df, self.number_of_moods)
+            model.fit(X_train, y_train, epochs=300,batch_size=200)
+            accuracy = model.evaluate(X_test, y_test)[1] * 100            
 
-            keras.models.save_model(estimator.model,'./static/neural_model.keras', overwrite=True)
+            tf.keras.models.save_model(model,'./static/neural_model.keras', overwrite=True)
             # pickle.dump(model, open('neural_model.pkl','wb'))
 
             if os.path.exists('./static/neural_model.keras') == True:
@@ -92,7 +95,10 @@ class NeuralNetwork:
             # Debugging? -->
             # return (message + " Model Accuraccy: %.2f%% (Std. Dev. %.2f%%)" % (results.mean()*100,results.std()*100))
             # <-- Debugging?
+            self.m_c_model = None
             return (message + f"Accuracy: %.2f%% " % (accuracy))
+
+
 
 
     def __fx__create_base_model(self, input_dim, units):
@@ -114,7 +120,7 @@ class NeuralNetwork:
             #Add 1 layer with output 3 and softmax function
             model.add(Dense(units,activation='softmax'))
             #Compile the model using logistic loss function and adam     optimizer, accuracy correspond to the metric displayed
-            model.compile(loss='categorical_crossentropy',optimizer='adam',metrics=['accuracy'])
+            model.compile(loss='sparse_categorical_crossentropy',optimizer='adam',metrics=['accuracy'])
         except Exception as ex:
             print(ex)
             return ex
@@ -185,8 +191,8 @@ class NeuralNetwork:
             # create the model if not created
             if os.path.exists('./static/neural_model.keras') == True:
                 # get the model
-                # model_advertising= pickle.load(open('neural_model.pkl', 'rb'))
-                model = keras.models.load_model('./static/neural_model.keras')
+                if self.m_c_model == None:
+                    self.m_c_model = tf.keras.models.load_model('./static/neural_model.keras')
                 
                 categories = self.__fx__get_categories()
 
@@ -200,7 +206,7 @@ class NeuralNetwork:
                 X = df.drop(columns='tag').apply(pd.to_numeric)
 
                 # predict
-                prediction = model.predict(X)
+                prediction = self.m_c_model.predict(X)
                 lst_moods=[]
                 for single_prediction in prediction:
                     predicted_mood_number = np.argmax(single_prediction)
