@@ -6,6 +6,14 @@ from Metrics.SimilarityAnalyzer import SimilarityAnalyzer as similarity_analyzer
 from Artist.ArtistAnalyzer import ArtistAnalyzer as artist_analyzer
 from NeuralNetwork.NeuralNetwork import NeuralNetwork as neural_network
 
+from keras.models import Sequential
+from keras.layers import Dense
+# from keras.wrappers.scikit_learn import KerasClassifier
+from scikeras.wrappers import KerasClassifier
+from sklearn.datasets import make_classification
+
+
+
 # New Flask Instance
 app = Flask(__name__, static_folder='static')
 
@@ -168,15 +176,25 @@ def fx__api__default_train():
     
     try:
         
+        # estimator = KerasClassifier(model=model, epochs=100, batch_size=5, verbose=0)
+        # X, y = make_classification()
+        # estimator.fit(X, y)
+
+        # # This is what you need
+        # # estimator.model.summary()
+        # estimator.model_.summary()
+
         # default trainning JSON path
         filename = os.path.join(app.config['UPLOAD_FOLDER'], 'playlist_metrics.json')
         # load JSON file
         data = json.load(open(filename))
+        
         # train neural network
         nn = neural_network()
         json_result = nn.fx__train(data)
 
     except Exception as ex:
+        print(ex)
         json_result = jsonify({"message": str(ex)}), 500
     finally:        
         return json_result, 200
