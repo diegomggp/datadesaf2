@@ -5,8 +5,4 @@ plotly
 prophet==1.1.3
 scikit-learn==1.2.1
 tensorflow==2.12.0
-<<<<<<< HEAD
 scikeras==0.11.0
-=======
-pickleshare==0.7.5
->>>>>>> a8ef73081d16cba244252ca81c45ece9941dd9c1
